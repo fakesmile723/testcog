@@ -2,22 +2,28 @@ from redbot.core import commands
 from redbot.core.bot import Red
 import discord
 
-class View(discord.ui.View):
-    def __init__(self) -> None:
-        super().__init__(timeout=180)  # seconds
-        self._message: discord.Message = None
+class VerifyView(discord.ui.View):
+    def __init__(self, role_id: int) -> None:
+        super().__init__()
+        self.role_id = role_id
 
-    async def on_timeout(self) -> None:
-        if self._message is not None:
-            self.click_here_button.disabled = True
-            try:
-                await self._message.edit(view=self)
-            except discord.HTTPException:
-                pass
+    @discord.ui.button(label="Add Role", style=discord.ButtonStyle.success)
+    async def add_role_button(self, button: discord.ui.Button, interaction: discord.Interaction) -> None:
+        member = interaction.user
+        role = interaction.guild.get_role(self.role_id)
+        if role and role not in member.roles:
+            await member.add_roles(role)
+            await interaction.response.send_message("Role added!", ephemeral=True)
+        else:
+            await interaction.response.send_message("You already have the role.", ephemeral=True)
 
-    @discord.ui.button(label="Click here.", style=discord.ButtonStyle.success)
-    async def click_here_button(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
-        await interaction.response.send_message("You clicked on the button.", ephemeral=True)
+    @discord.ui.button(label="Try Again", style=discord.ButtonStyle.secondary)
+    async def try_again_button(self, button: discord.ui.Button, interaction: discord.Interaction) -> None:
+        await interaction.response.send_message("Please try again.", ephemeral=True)
+
+    async def interaction_check(self, interaction: discord.Interaction) -> bool:
+        # Only allow the original command invoker to interact with the buttons
+        return interaction.user.id == self.bot.current_user.id
 
 class Cog(commands.Cog):
     def __init__(self, bot: Red) -> None:
@@ -25,6 +31,8 @@ class Cog(commands.Cog):
 
     @commands.command()
     async def sendbutton(self, ctx: commands.Context) -> None:
-        embed: discord.Embed = discord.Embed(title="Click on the button below.", color=await ctx.embed_color() ephemeral=True)
-        view = View()
-        view._message = await ctx.send(embed=embed, view=view)
+        role_id = 959146966858752006  # Modify this with the desired role ID
+        embed = discord.Embed(title="Verify using Discord", color=await ctx.embed_color())
+        view = VerifyView(role_id)
+        view.add_item(discord.ui.Button(style=discord.ButtonStyle.success, label="Verify"))
+        await ctx.send(embed=embed, view=view)

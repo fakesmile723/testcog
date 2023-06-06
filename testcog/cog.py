@@ -35,5 +35,6 @@ class Cog(commands.Cog):
         invoker_id = ctx.author.id
         embed = discord.Embed(title="Verify using Discord", color=await ctx.embed_color())
         view = VerifyView(role_id, invoker_id)
+        view.bot = self.bot  # Add this line to assign the bot attribute
         view.add_item(discord.ui.Button(style=discord.ButtonStyle.success, label="Verify"))
         await ctx.send(embed=embed, view=view)

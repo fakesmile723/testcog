@@ -10,4 +10,4 @@ class Cog(commands.Cog):
     async def mycom(self, ctx):
         """This does stuff!"""
         # Your code will go here
-        await ctx.send("I can do stuff!" ephemeral=True)
+        await ctx.send("I can do stuff!")

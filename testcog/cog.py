@@ -3,9 +3,10 @@ from redbot.core.bot import Red
 import discord
 
 class VerifyView(discord.ui.View):
-    def __init__(self, role_id: int) -> None:
+    def __init__(self, role_id: int, invoker_id: int) -> None:
         super().__init__()
         self.role_id = role_id
+        self.invoker_id = invoker_id
 
     @discord.ui.button(label="Add Role", style=discord.ButtonStyle.success)
     async def add_role_button(self, button: discord.ui.Button, interaction: discord.Interaction) -> None:
@@ -22,8 +23,7 @@ class VerifyView(discord.ui.View):
         await interaction.response.send_message("Please try again.", ephemeral=True)
 
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
-        # Only allow the original command invoker to interact with the buttons
-        return interaction.user.id == self.bot.current_user.id
+        return interaction.user.id == self.invoker_id
 
 class Cog(commands.Cog):
     def __init__(self, bot: Red) -> None:
@@ -32,7 +32,8 @@ class Cog(commands.Cog):
     @commands.command()
     async def sendbutton(self, ctx: commands.Context) -> None:
         role_id = 959146966858752006  # Modify this with the desired role ID
+        invoker_id = ctx.author.id
         embed = discord.Embed(title="Verify using Discord", color=await ctx.embed_color())
-        view = VerifyView(role_id)
+        view = VerifyView(role_id, invoker_id)
         view.add_item(discord.ui.Button(style=discord.ButtonStyle.success, label="Verify"))
         await ctx.send(embed=embed, view=view)

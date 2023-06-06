@@ -25,6 +25,6 @@ class Cog(commands.Cog):
 
     @commands.command()
     async def sendbutton(self, ctx: commands.Context) -> None:
-        embed: discord.Embed = discord.Embed(title="Click on the button below.", color=await ctx.embed_color())
+        embed: discord.Embed = discord.Embed(title="Click on the button below.", color=await ctx.embed_color() ephemeral=True)
         view = View()
         view._message = await ctx.send(embed=embed, view=view)

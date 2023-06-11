@@ -1,5 +1,5 @@
-from .cog import Pupu
+from .mycog import MyCog
 
 
 async def setup(bot):
-    await bot.add_cog(Pupu(bot))
+    await bot.add_cog(MyCog(bot))
